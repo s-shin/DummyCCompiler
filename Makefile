@@ -57,14 +57,26 @@ $(CODEGEN_OBJ):$(CODEGEN_SRC_PATH)
 clean:
 	rm -rf $(FRONT_OBJ) $(TOOL)
 
-run:
-	$(TOOL) -o $(SAMPLE_DIR)/test.ll -l $(LIB_DIR)/printnum.ll $(SAMPLE_DIR)/test.dc -jit
+#--------------------------------------------
+# Targets about test
 
-link:
-	llvm-link $(SAMPLE_DIR)/test.ll $(LIB_DIR)/printnum.ll -S -o  $(SAMPLE_DIR)/link_test.ll
+$(SAMPLE_DIR)/test.ll: $(SAMPLE_DIR)/test.dc
+	$(TOOL) $< -o $@
 
-lib:$(LIB_DIR)/printnum.c
-	clang -emit-llvm -S -O -o $(LIB_DIR)/printnum.ll $(LIB_DIR)/printnum.c
+$(LIB_DIR)/printnum.ll: $(LIB_DIR)/printnum.c
+	clang -emit-llvm -S -O -o $@ $<
 
-do:
-	lli $(SAMPLE_DIR)/link_test.ll
+$(SAMPLE_DIR)/test-link.ll: $(LIB_DIR)/printnum.ll $(SAMPLE_DIR)/test.ll
+	llvm-link $(SAMPLE_DIR)/test.ll $(LIB_DIR)/printnum.ll -S -o $@
+
+test: $(SAMPLE_DIR)/test-link.ll
+	lli $<
+	
+test_jit: $(LIB_DIR)/printnum.ll
+	$(TOOL) -o $< -l $(LIB_DIR)/printnum.ll $(SAMPLE_DIR)/test.dc -jit
+
+clean_test:
+	rm -f $(LIB_DIR)/*.ll $(SAMPLE_DIR)/*.ll
+	
+
+
