@@ -73,7 +73,7 @@ test: $(SAMPLE_DIR)/test-link.ll
 	lli $<
 	
 test_jit: $(LIB_DIR)/printnum.ll
-	$(TOOL) -o $< -l $(LIB_DIR)/printnum.ll $(SAMPLE_DIR)/test.dc -jit
+	$(TOOL) -o $(SAMPLE_DIR)/test-jit.ll -l $(LIB_DIR)/printnum.ll $(SAMPLE_DIR)/test.dc -jit
 
 clean_test:
 	rm -f $(LIB_DIR)/*.ll $(SAMPLE_DIR)/*.ll
